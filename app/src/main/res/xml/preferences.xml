@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/notifications_setting">
+
+        <SwitchPreference
+            android:key="weather_warn"
+            android:title="@string/notifications"
+            android:summaryOff="開啓後會跳出通知欄"
+            android:summaryOn="關閉通知欄"
+            android:defaultValue="false"/>
+        <!--<ListPreference android:key="warning_time"-->
+            <!--android:dependency="weather_warn"-->
+            <!--android:title="@string/notifications_time_select"-->
+            <!--android:summary="开启提醒则需要设置这项,默认为15分钟"-->
+            <!--android:entries="@array/time"-->
+            <!--android:entryValues="@array/time"-->
+            <!--android:defaultValue="@string/time_default"-->
+            <!--android:dialogTitle="请选择提前时间"/>-->
+    </PreferenceCategory>
+</PreferenceScreen>
