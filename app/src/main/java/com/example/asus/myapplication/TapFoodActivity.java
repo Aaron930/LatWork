@@ -67,14 +67,14 @@ public class TapFoodActivity extends Fragment implements
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.tap_food_main,container,false);
 
-        constraintLayout=getView().findViewById(R.id.layout2);
-        PlaceNameTV=getView().findViewById(R.id.PlaceNameTV);
-        AddressTV = getView().findViewById(R.id.AddressTV);
-        button = getView().findViewById(R.id.GoToMap);
-        RatingTV = getView().findViewById(R.id.RatingTV);
-        DistanceTV = getView().findViewById(R.id.DistanceTV);
-        imageView = getView().findViewById(R.id.imageView);
-        favourite=getView().findViewById(R.id.favouriteList);
+        constraintLayout=view.findViewById(R.id.layout2);
+        PlaceNameTV=view.findViewById(R.id.PlaceNameTV);
+        AddressTV = view.findViewById(R.id.AddressTV);
+        button = view.findViewById(R.id.GoToMap);
+        RatingTV = view.findViewById(R.id.RatingTV);
+        DistanceTV =view.findViewById(R.id.DistanceTV);
+        imageView = view.findViewById(R.id.imageView);
+        favourite=view.findViewById(R.id.favouriteList);
 //        favourite.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {

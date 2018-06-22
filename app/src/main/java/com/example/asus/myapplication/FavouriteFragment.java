@@ -25,7 +25,7 @@ public class FavouriteFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_favourite,container,false);
 
-        listView=getView().findViewById(R.id.listView);
+        listView=view.findViewById(R.id.listView);
         userDB=new UserDB(getActivity());
         //allModel = userDB.getAllData();
         userDB.getAllData();
