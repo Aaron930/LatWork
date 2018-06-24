@@ -8,11 +8,9 @@ import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -22,24 +20,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.facebook.Profile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -51,9 +43,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
+//    private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    private TapFoodActivity tapFoodActivity =new TapFoodActivity();
+    private TapFoodFragment tapFoodActivity =new TapFoodFragment();
     private FavouriteFragment favouriteFragment = new FavouriteFragment();
 
     /**
@@ -135,12 +127,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+//        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter) ;
-        mViewPager.setCurrentItem(0);
+        mViewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                switch (position) {
+                    case 0:
+                        return tapFoodActivity;
+                    case 1:
+                        return favouriteFragment;
+
+                }
+                return null;
+            }
+
+            @Override
+            public int getCount() {
+                return 2;
+            }
+        }) ;
         mViewPager.addOnPageChangeListener(mViewPagerOnPageChange);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -224,32 +232,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     };
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer =  findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
 //    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
+//    public void onBackPressed() {
 //        DrawerLayout drawer =  findViewById(R.id.drawer_layout);
 //        if (drawer.isDrawerOpen(GravityCompat.START)) {
 //            drawer.closeDrawer(GravityCompat.START);
+//        } else {
+//            super.onBackPressed();
 //        }
-//        return super.onOptionsItemSelected(item);
 //    }
-//
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater menuInflater = getMenuInflater();
-//        menuInflater.inflate(R.menu.menu_main, menu);
-//        return super.onCreateOptionsMenu(menu);
-//    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        DrawerLayout drawer =  findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
     @SuppressLint("ResourceType")
     @Override
@@ -308,43 +316,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        }
 //    }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-//            return PlaceholderFragment.newInstance(position + 1);
-            Fragment fragment = null;
-
-            switch (position) {
-                case 0:
-                    fragment =tapFoodActivity;
-                    break;
-                case 1:
-                    fragment =favouriteFragment;
-                    break;
-            }
-            return fragment;
-
-        }
-
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 3;
-        }
-
-    }
+//    /**
+//     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+//     * one of the sections/tabs/pages.
+//     */
+//    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+//
+//        public SectionsPagerAdapter(FragmentManager fm) {
+//            super(fm);
+//
+//        }
+//
+//        @Override
+//        public Fragment getItem(int position) {
+//            // getItem is called to instantiate the fragment for the given page.
+//            // Return a PlaceholderFragment (defined as a static inner class below).
+////            return PlaceholderFragment.newInstance(position + 1);
+//            Fragment fragment = null;
+//
+//            switch (position) {
+//                case 0:
+//                    fragment =tapFoodActivity;
+//                    break;
+//                case 1:
+//                    fragment =favouriteFragment;
+//                    break;
+//            }
+//            return fragment;
+//
+//        }
+//
+//        @Override
+//        public int getCount() {
+//            // Show 3 total pages.
+//            return 3;
+//        }
+//
+//    }
 
     @Override
     protected void onDestroy() {

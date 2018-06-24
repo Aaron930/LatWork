@@ -103,6 +103,10 @@
             </intent-filter>
         </service>
 
+        <provider android:name=".providers.FavouriteContentProvider"
+            android:authorities=
+                "com.contentprovider.providers.FavouriteContentProvider" />
+
 
     </application>
 </manifest>

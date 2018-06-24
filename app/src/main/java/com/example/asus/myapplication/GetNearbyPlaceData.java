@@ -80,9 +80,9 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
         Log.i("Lat",Double.toString(lat));
         Log.i("Lng",Double.toString(lng));
         Log.i("rating",rating);
-        double myLat = TapFoodActivity.latitude;
-        double myLng = TapFoodActivity.longitude;
-        int distance=TapFoodActivity.getDistance(lat,lng,myLat,myLng);
+        double myLat = TapFoodFragment.latitude;
+        double myLng = TapFoodFragment.longitude;
+        int distance= TapFoodFragment.getDistance(lat,lng,myLat,myLng);
         Log.i("distance",Double.toString(distance));
         /*ImageDownloader task = new ImageDownloader();
         try {
@@ -94,11 +94,11 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
             e.printStackTrace();
         }
         */
-        TapFoodActivity.constraintLayout.setVisibility(View.VISIBLE);
-        TapFoodActivity.PlaceNameTV.setText(placeName);
-        TapFoodActivity.AddressTV.setText(vicinity);
-        TapFoodActivity.RatingTV.setText(rating);
-        TapFoodActivity.DistanceTV.setText(Integer.toString(distance));
+        TapFoodFragment.linearLayout.setVisibility(View.VISIBLE);
+        TapFoodFragment.txtPlaceName.setText(placeName);
+        TapFoodFragment.txtAddress.setText(vicinity);
+        TapFoodFragment.txtRating.setText(rating);
+        TapFoodFragment.txtDistance.setText(Integer.toString(distance));
 
 
 

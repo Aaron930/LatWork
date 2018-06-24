@@ -1,34 +1,33 @@
 package com.example.asus.myapplication;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.PlacePhotoMetadata;
 import com.google.android.gms.location.places.Places;
@@ -36,11 +35,12 @@ import com.google.android.gms.location.places.Places;
 import java.net.URLEncoder;
 import java.util.List;
 
-import static com.facebook.FacebookSdk.getApplicationContext;
+import com.example.asus.myapplication.providers.FavouriteContentProvider;
 
-public class TapFoodActivity extends Fragment implements
+public class TapFoodFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,LocationListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
     public static final int REQUEST_LOCATION_CODE = 99;
     private GoogleApiClient client;
     private LocationRequest locationRequest;
@@ -48,41 +48,38 @@ public class TapFoodActivity extends Fragment implements
     int PROXIMITY_RADIUS = 500;
     static double latitude, longitude;
     private Location mCurrentLocation;
-    public static ConstraintLayout constraintLayout;
-    public static TextView PlaceNameTV;
-    public static TextView AddressTV;
-    public static Button button;
-    public static TextView RatingTV;
-    public static TextView DistanceTV;
-    public static ImageView imageView;
-    public static Button favourite;
+    public static LinearLayout linearLayout;
+
+    public static TextView txtPlaceName;
+    public static TextView txtAddress;
+    public static TextView txtRating;
+    public static TextView txtDistance;
+    public Button btnTap,btnMap,btnAdd;
+
     private static List<PlacePhotoMetadata> photosDataList;
     private static int currentPhotoIndex = 0;
-    public static GeoDataClient geoDataClient;
-    UserDB userDB;
+    public  GeoDataClient geoDataClient;
 
+    private static ContentResolver mContRes;
 
-    @Nullable
+    public TapFoodFragment() {
+    }
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view =inflater.inflate(R.layout.tap_food_main,container,false);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        constraintLayout=view.findViewById(R.id.layout2);
-        PlaceNameTV=view.findViewById(R.id.PlaceNameTV);
-        AddressTV = view.findViewById(R.id.AddressTV);
-        button = view.findViewById(R.id.GoToMap);
-        RatingTV = view.findViewById(R.id.RatingTV);
-        DistanceTV =view.findViewById(R.id.DistanceTV);
-        imageView = view.findViewById(R.id.imageView);
-        favourite=view.findViewById(R.id.favouriteList);
-//        favourite.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent i2 = new Intent(TapFoodActivity.this ,FavouriteFragment.class);
-//                startActivity(i2);
-//            }
-//        });
-        userDB=new UserDB(getActivity());
+        mContRes = getActivity().getContentResolver();
+
+        linearLayout =getView().findViewById(R.id.layout2);
+        txtPlaceName =getView().findViewById(R.id.PlaceNameTV);
+        txtAddress = getView().findViewById(R.id.AddressTV);
+        txtRating = getView().findViewById(R.id.RatingTV);
+        txtDistance =getView().findViewById(R.id.DistanceTV);
+
+        btnAdd=getView().findViewById(R.id.AddFavourite);
+        btnTap=getView().findViewById(R.id.taptap);
+        btnMap = getView().findViewById(R.id.GoToMap);
 
         //favouriteDb=userDBOpenHelper.getWritableDatabase();
         /*Cursor cursor =favouriteDb.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+DB_TABLE+"'",null);
@@ -98,15 +95,24 @@ public class TapFoodActivity extends Fragment implements
             checkLocationPermission();
 
         }
-        client=new GoogleApiClient.Builder(getApplicationContext())
+        client=new GoogleApiClient.Builder(getContext())
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
 
-
-        return view;
+        btnAdd.setOnClickListener(btnAddOnClickListener);
+        btnTap.setOnClickListener(btnTapOnClickListener);
+        btnMap.setOnClickListener(btnMapOnClickListener);
     }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.tap_food_main, container, false);
+    }
+
+
 
 
     @Override
@@ -128,44 +134,64 @@ public class TapFoodActivity extends Fragment implements
 
         client.disconnect();
     }
-//    public void favouriteList(View view){
-//        Intent i2 = new Intent(TapFoodActivity.this,FavouriteActivity.class);
-//        startActivity(i2);
-//    }
 
-//    public void favourite(View view){
-//        if (userDB.insertData(PlaceNameTV.getText().toString(),AddressTV.getText().toString(),RatingTV.getText().toString(),DistanceTV.getText().toString())!=-1){
-//            Toast.makeText(TapFoodActivity.this, "Saved to Favourite", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
-//    public void openInMap(View view) {
-//
-//        String address = AddressTV.getText().toString();
-//        Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format("geo:0,0?q=%s", URLEncoder.encode(address))));
-//        startActivity(it);
-//
-//
-//    }
-
-    public void taptap(View view){
-        if (mCurrentLocation != null) {
-            Log.i("Location", mCurrentLocation.toString());
-        } else {
-            Log.i("Location", "nothing");
+    public View.OnClickListener btnMapOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String address = txtAddress.getText().toString();
+            Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format("geo:0,0?q=%s", URLEncoder.encode(address))));
+            startActivity(it);
         }
-        Object dataTransfer[] = new Object[2];
-        GetNearbyPlaceData getNearbyPlaceData = new GetNearbyPlaceData();
-
-        String restaurant = "restaurant";
-        String url = getUrl(latitude, longitude, restaurant);
-
-        dataTransfer[0] = url;
-        getNearbyPlaceData.execute(dataTransfer);
+    };
 
 
-        Toast.makeText(getActivity(), "Showing Nearby Restaurants", Toast.LENGTH_SHORT).show();
+    public View.OnClickListener btnAddOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+                addData();
+        }
+    };
+
+
+    public View.OnClickListener btnTapOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mCurrentLocation != null) {
+                Log.i("Location", mCurrentLocation.toString());
+            } else {
+                Log.i("Location", "nothing");
+            }
+            Object dataTransfer[] = new Object[2];
+            GetNearbyPlaceData getNearbyPlaceData = new GetNearbyPlaceData();
+
+            String restaurant = "restaurant";
+            String url = getUrl(latitude, longitude, restaurant);
+
+            dataTransfer[0] = url;
+            getNearbyPlaceData.execute(dataTransfer);
+
+
+            Toast.makeText(getActivity(), "Showing Nearby Restaurants", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    public void addData() {
+        if (!txtPlaceName.getText().toString().equals("")) {
+            ContentValues newRow = new ContentValues();
+            newRow.put("name", txtPlaceName.getText().toString());
+            newRow.put("rating", txtRating.getText().toString());
+            newRow.put("distance", txtDistance.getText().toString());
+            newRow.put("address", txtAddress.getText().toString());
+
+            mContRes.insert(FavouriteContentProvider.CONTENT_URI, newRow);
+            Toast.makeText(getActivity(), "Success", Toast.LENGTH_LONG).show();
+
+        } else {
+            Toast.makeText(getActivity(), "Failed", Toast.LENGTH_LONG).show();
+        }
     }
+
 
 
     public boolean checkLocationPermission() {
@@ -191,30 +217,11 @@ public class TapFoodActivity extends Fragment implements
 
         if(client != null)
         {
-            LocationServices.FusedLocationApi.removeLocationUpdates(client, (com.google.android.gms.location.LocationListener) this);
+            LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
         }
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
 
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-    protected synchronized void bulidGoogleApiClient() {
-        client = new GoogleApiClient.Builder(getActivity()).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
-        client.connect();
-
-    }
     public String getUrl(double latitude, double longitude, String nearbyPlace) {
 
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
@@ -232,6 +239,8 @@ public class TapFoodActivity extends Fragment implements
 
         return googlePlaceUrl.toString();
     }
+
+
     public static int getDistance(double latFromJson,double lngFromJson,double myLat,double myLng){
         Location myLocation = new Location("my loc");
 
@@ -255,8 +264,8 @@ public class TapFoodActivity extends Fragment implements
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
 
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(client, locationRequest, (com.google.android.gms.location.LocationListener) this);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(client, locationRequest, this);
         }
     }
 
