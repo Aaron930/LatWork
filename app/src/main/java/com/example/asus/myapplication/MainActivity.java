@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private TapFoodFragment tapFoodActivity =new TapFoodFragment();
     private FavouriteFragment favouriteFragment = new FavouriteFragment();
-
+    private FilterFragment filterFragment  =new FilterFragment();
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -85,8 +85,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             LoginStatus = 1;
 
-            mTxtLogin.setText(UserName);
-            Log.d("LoginStatus",UserName);
+            if (UserName != null) {
+                mTxtLogin.setText(UserName);
+                Log.d("LoginStatus",UserName);
+            }
+
+
 //            mImgPhoto=findViewById(R.id.imageView);
 //            Glide.with(MainActivity.this)
 //                    .load(UserPhotoUrl.toString())
@@ -138,6 +142,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     case 0:
                         return tapFoodActivity;
                     case 1:
+                        return filterFragment;
+                    case 2:
                         return favouriteFragment;
 
                 }
@@ -146,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public int getCount() {
-                return 2;
+                return 3;
             }
         }) ;
         mViewPager.addOnPageChangeListener(mViewPagerOnPageChange);

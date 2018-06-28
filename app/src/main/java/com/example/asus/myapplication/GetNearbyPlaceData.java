@@ -1,29 +1,22 @@
 package com.example.asus.myapplication;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
-    String googlePlacesData;
-    String nextPageData;
-    String allData;
-    String url;
-    String data;
-    String newPage;
-    String newPage2;
-    String newpageURL;
+    private String googlePlacesData,
+            allData,
+            url,
+            newPage,
+            newPage2,
+            newpageURL;
+
 
 
 
@@ -31,7 +24,7 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
     protected String doInBackground(Object[] objects) {
 
         url = (String) objects[0];
-        String token="";
+        String token = "";
         String resultData="";
         DataParser parser = new DataParser();
         DownloadURL downloadURL = new DownloadURL();
@@ -65,64 +58,40 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
         }
         return allData;
     }
+
     public void randomPlaceData(List<HashMap<String, String>> nearbyPlaceList){
         int random = new Random().nextInt(nearbyPlaceList.size());
 
         HashMap<String, String> googlePlace = nearbyPlaceList.get(random);
         String placeName = googlePlace.get("place_name");
         String vicinity = googlePlace.get("vicinity");
+        String rating = googlePlace.get("rating");
+
         double lat = Double.parseDouble(googlePlace.get("lat"));
         double lng = Double.parseDouble(googlePlace.get("lng"));
-        String rating = googlePlace.get("rating");
-        String photoReference=googlePlace.get("photo_reference");
+
+        double myLat = TapFoodFragment.latitude;
+        double myLng = TapFoodFragment.longitude;
+
+
         Log.i("PlaceName",placeName);
         Log.i("Vicinity",vicinity);
         Log.i("Lat",Double.toString(lat));
         Log.i("Lng",Double.toString(lng));
         Log.i("rating",rating);
-        double myLat = TapFoodFragment.latitude;
-        double myLng = TapFoodFragment.longitude;
+
+
         int distance= TapFoodFragment.getDistance(lat,lng,myLat,myLng);
         Log.i("distance",Double.toString(distance));
-        /*ImageDownloader task = new ImageDownloader();
-        try {
-            Bitmap bitmap = task.execute("https://maps.googleapis.com/maps/api/place/photo?maxwidth=500&photoreference="+photoReference+"&key=AIzaSyCWdzMBPjMgF8XwEaiEI7h_h-NpshHAlCA").get();
-            MainActivity.imageView.setImageBitmap(bitmap);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        */
+
         TapFoodFragment.linearLayout.setVisibility(View.VISIBLE);
         TapFoodFragment.txtPlaceName.setText(placeName);
         TapFoodFragment.txtAddress.setText(vicinity);
         TapFoodFragment.txtRating.setText(rating);
         TapFoodFragment.txtDistance.setText(Integer.toString(distance));
 
-
-
-
     }
-    public class ImageDownloader extends AsyncTask<String,Void,Bitmap>{
 
-        @Override
-        protected Bitmap doInBackground(String... strings) {
-            try {
-                URL url = new URL(strings[0]);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
-                InputStream inputStream = connection.getInputStream();
-                Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
-                return myBitmap;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
 
     @Override
     protected void onPostExecute(String s) {
@@ -131,7 +100,6 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
         //  nearbyPlaceList = parser.getPlaces()
         nearbyPlaceList = parser.parse(s);
         randomPlaceData(nearbyPlaceList);
-
     }
 
 }

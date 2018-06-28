@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,8 +55,8 @@ public class TapFoodFragment extends Fragment implements
     public static TextView txtAddress;
     public static TextView txtRating;
     public static TextView txtDistance;
-    public Button btnTap,btnMap,btnAdd;
-
+    public Button btnMap,btnAdd;
+    public ImageButton btnTap;
     private static List<PlacePhotoMetadata> photosDataList;
     private static int currentPhotoIndex = 0;
     public  GeoDataClient geoDataClient;
@@ -81,14 +82,6 @@ public class TapFoodFragment extends Fragment implements
         btnTap=getView().findViewById(R.id.taptap);
         btnMap = getView().findViewById(R.id.GoToMap);
 
-        //favouriteDb=userDBOpenHelper.getWritableDatabase();
-        /*Cursor cursor =favouriteDb.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+DB_TABLE+"'",null);
-        if(cursor!=null){
-            if (cursor.getCount()==0)
-                favouriteDb.execSQL("CREATE TABLE IF NOT EXISTS favourite("+"_id INTERGER PRIMARY KEY,"+"name TEXT NOT NULL,"+"rate REAL,"+"address TEXT,"+"distance REAL);");
-            cursor.close();
-        }
-        */
         geoDataClient = Places.getGeoDataClient(getActivity(),null);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

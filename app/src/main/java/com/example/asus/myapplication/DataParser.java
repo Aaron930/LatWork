@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class DataParser {
+
     private HashMap<String , String > getPlace(JSONObject googleplaceJson){
+
         HashMap<String,String> googlePlaceMap = new HashMap<>();
         String placeName = "--NA--";
         String placeId="";
@@ -69,22 +71,22 @@ public class DataParser {
         JSONArray jsonArray = null;
         JSONObject jsonObject;
         String[] str_array = jsonData.split("XXX");
-        String stringa = str_array[0];
-        String stringb = str_array[1];
-        String stringc = str_array[2];
+        String stringA = str_array[0];
+        String stringB = str_array[1];
+        String stringC = str_array[2];
 
         List<HashMap<String, String>> list1 = null;
         try {
-            jsonObject = new JSONObject(stringa);
+            jsonObject = new JSONObject(stringA);
             String object = jsonObject.toString();
             Log.i("objectText", object);
             jsonArray = jsonObject.getJSONArray("results");
             list1 = new ArrayList<>();
             list1.addAll(getPlaces(jsonArray));
-            jsonObject = new JSONObject(stringb);
+            jsonObject = new JSONObject(stringB);
             jsonArray = jsonObject.getJSONArray("results");
             list1.addAll(getPlaces(jsonArray));
-            jsonObject = new JSONObject(stringc);
+            jsonObject = new JSONObject(stringC);
             jsonArray = jsonObject.getJSONArray("results");
             list1.addAll(getPlaces(jsonArray));
             //String test=jsonArray.toString();
@@ -128,6 +130,7 @@ public class DataParser {
         }
         return  resultData;
     }
+
     public String getPhotoReference(String jsonData){
         JSONObject jsonObject;
         String photoReference="";
@@ -141,6 +144,7 @@ public class DataParser {
         }
         return photoReference;
     }
+
     public String nextPageToken(String jsonData){
         JSONArray jsonArray = null;
         JSONObject jsonObject;
