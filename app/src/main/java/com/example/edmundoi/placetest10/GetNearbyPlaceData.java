@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -38,6 +40,10 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
     String newPage;
     String newPage2;
     String newpageURL;
+    ;
+    // > 3
+    private List<HashMap<String, String>> ratingPlaceData;
+
 
 
 
@@ -45,6 +51,7 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
     protected String doInBackground(Object[] objects) {
 
         url = (String) objects[0];
+
         String token="";
         String resultData="";
         DataParser parser = new DataParser();
@@ -79,10 +86,29 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
         }
         return allData;
     }
-    public void randomPlaceData(List<HashMap<String, String>> nearbyPlaceList){
-        int random = new Random().nextInt(nearbyPlaceList.size());
+    private void reloadData(List<HashMap<String, String>> getRating){
 
-        HashMap<String, String> googlePlace = nearbyPlaceList.get(random);
+        int ratingInt=Math.round(MainActivity.rating);
+        for(HashMap<String,String>onlyData : getRating){
+            Log.i("rating",onlyData.get("rating"));
+            if (Float.parseFloat(onlyData.get("rating")) > ratingInt)
+            {
+            ratingPlaceData.add(onlyData);
+            }
+
+        }
+    }
+    public int randomPlaceData(List<HashMap<String, String>> nearbyPlaceList){
+        int index=0;
+        ratingPlaceData=new ArrayList<>();
+
+        reloadData(nearbyPlaceList);
+        if (ratingPlaceData.size()!=0){
+        int random = new Random().nextInt(ratingPlaceData.size());
+
+
+
+        HashMap<String, String> googlePlace = ratingPlaceData.get(random);
         String placeName = googlePlace.get("place_name");
         String vicinity = googlePlace.get("vicinity");
         double lat = Double.parseDouble(googlePlace.get("lat"));
@@ -98,25 +124,18 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
         double myLng = MainActivity.longitude;
         int distance=MainActivity.getDistance(lat,lng,myLat,myLng);
         Log.i("distance",Double.toString(distance));
-        /*ImageDownloader task = new ImageDownloader();
-        try {
-            Bitmap bitmap = task.execute("https://maps.googleapis.com/maps/api/place/photo?maxwidth=500&photoreference="+photoReference+"&key=AIzaSyCWdzMBPjMgF8XwEaiEI7h_h-NpshHAlCA").get();
-            MainActivity.imageView.setImageBitmap(bitmap);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        */
         MainActivity.constraintLayout.setVisibility(View.VISIBLE);
         MainActivity.PlaceNameTV.setText(placeName);
         MainActivity.AddressTV.setText(vicinity);
         MainActivity.RatingTV.setText(rating);
         MainActivity.DistanceTV.setText(Integer.toString(distance));
+        }else{
+            index=1;
+        }
 
 
 
-
+        return index;
     }
     public class ImageDownloader extends AsyncTask<String,Void,Bitmap>{
 
@@ -140,11 +159,12 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
 
     @Override
     protected void onPostExecute(String s) {
+        int indexChk=0;
         List<HashMap<String, String>> nearbyPlaceList;
         DataParser parser = new DataParser();
         //  nearbyPlaceList = parser.getPlaces()
         nearbyPlaceList = parser.parse(s);
-        randomPlaceData(nearbyPlaceList);
+        indexChk=randomPlaceData(nearbyPlaceList);
 
     }
 

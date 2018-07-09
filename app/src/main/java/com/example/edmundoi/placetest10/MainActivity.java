@@ -21,6 +21,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +39,6 @@ import com.google.android.gms.location.places.Places;
 import java.net.URLEncoder;
 import java.util.List;
 
-
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,LocationListener {
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements
     int PROXIMITY_RADIUS = 500;
     static double latitude, longitude;
     private Location mCurrentLocation;
+    static float rating;
    public static ConstraintLayout constraintLayout;
    public static TextView PlaceNameTV;
    public static TextView AddressTV;
@@ -56,10 +58,14 @@ public class MainActivity extends AppCompatActivity implements
     public static TextView DistanceTV;
     public static ImageView imageView;
     public static Button favourite;
+    public static SeekBar seekbar1;
+    public static TextView textView1;
+    public static RatingBar ratingBar;
     private static List<PlacePhotoMetadata> photosDataList;
     private static int currentPhotoIndex = 0;
     public static GeoDataClient geoDataClient;
     UserDB userDB;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +79,35 @@ public class MainActivity extends AppCompatActivity implements
         DistanceTV = findViewById(R.id.DistanceTV);
         imageView = findViewById(R.id.imageView);
         favourite=findViewById(R.id.favouriteList);
+        seekbar1=findViewById(R.id.seekBar1);
+        textView1=findViewById(R.id.textView1);
+        ratingBar=findViewById(R.id.ratingBar);
+        seekbar1.setMax(500);
+        seekbar1.setProgress(300);
+        ratingBar.setRating(3);
+        textView1.setText(seekbar1.getProgress()+100+"/"+Integer.toString(seekbar1.getMax()+100));
+
+
+        seekbar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progress_value;
+            int max_value;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progress_value=progress+100;
+                max_value=seekBar.getMax()+100;
+                textView1.setText(progress_value+"/"+max_value);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                textView1.setText(progress_value+"/"+max_value);
+            }
+        });
         favourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,10 +181,24 @@ public class MainActivity extends AppCompatActivity implements
     public void taptap(View view){
         if (mCurrentLocation != null) {
             Log.i("Location", mCurrentLocation.toString());
+            Object dataTransfer[] = new Object[2];
+            GetNearbyPlaceData getNearbyPlaceData = new GetNearbyPlaceData();
+            int distance=seekbar1.getProgress()+100;
+            Log.i("distance",Integer.toString(distance));
+            String restaurant = "restaurant";
+            String url = getUrl(latitude, longitude, restaurant,distance);
+            rating=ratingBar.getRating();
+            dataTransfer[0] = url;
+
+            getNearbyPlaceData.execute(dataTransfer);
+
+
+            Toast.makeText(MainActivity.this, "Showing Nearby Restaurants", Toast.LENGTH_SHORT).show();
         } else {
             Log.i("Location", "nothing");
+            Toast.makeText(MainActivity.this, "cannot get location", Toast.LENGTH_SHORT).show();
         }
-        Object dataTransfer[] = new Object[2];
+       /* Object dataTransfer[] = new Object[2];
         GetNearbyPlaceData getNearbyPlaceData = new GetNearbyPlaceData();
 
         String restaurant = "restaurant";
@@ -159,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements
         getNearbyPlaceData.execute(dataTransfer);
 
 
-        Toast.makeText(MainActivity.this, "Showing Nearby Restaurants", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Showing Nearby Restaurants", Toast.LENGTH_SHORT).show();*/
     }
 
 
@@ -195,15 +244,16 @@ public class MainActivity extends AppCompatActivity implements
         client.connect();
 
     }
-    public String getUrl(double latitude, double longitude, String nearbyPlace) {
+    public String getUrl(double latitude, double longitude, String nearbyPlace,int distance) {
 
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googlePlaceUrl.append("location=" + latitude + "," + longitude);
-        googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
+        googlePlaceUrl.append("&radius=" +distance );
         googlePlaceUrl.append("&type=" + nearbyPlace);
         googlePlaceUrl.append("&type=" + "cafe");
         googlePlaceUrl.append("&opennow="+"true");
         googlePlaceUrl.append("&sensor=true");
+
         googlePlaceUrl.append("&key=" + "AIzaSyCWdzMBPjMgF8XwEaiEI7h_h-NpshHAlCA");
         googlePlaceUrl.append("&pagetoken=");
 
