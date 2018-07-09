@@ -1,4 +1,4 @@
-package com.example.asus.myapplication;
+package com.example.asus.myapplication.GooglePlaceApi;
 
 import java.io.BufferedReader;
 import java.io.IOException;

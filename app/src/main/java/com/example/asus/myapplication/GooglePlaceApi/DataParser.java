@@ -1,4 +1,4 @@
-package com.example.asus.myapplication;
+package com.example.asus.myapplication.GooglePlaceApi;
 import android.util.Log;
 
 import org.json.JSONArray;

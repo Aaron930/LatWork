@@ -1,47 +1,40 @@
 package com.example.asus.myapplication;
 
-import android.app.AlertDialog;
+import android.content.ContentProvider;
 import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.example.asus.myapplication.providers.FavouriteContentProvider;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
-public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
-    private ListView listView;
-    //    private ArrayAdapter<String> listAdapter;
-    private ArrayList listStr = new ArrayList();
+public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+    private RecyclerView recyclerView;
+    private ArrayList<LinkedHashMap<String, String>> listStr;
     private SwipeRefreshLayout mSwipeLayout;
     private static ContentResolver mContRes;
+    private FavouriteItemAdapter favouriteItemAdapter;
+
+    DataBaseProgress dataBaseProgress = new DataBaseProgress();
 
     public FavouriteFragment() {
     }
@@ -54,9 +47,12 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
         setHasOptionsMenu(true);
         mContRes = getActivity().getContentResolver();
 
-        listView = getView().findViewById(R.id.list_item);
+        listStr = new ArrayList<>();
+        recyclerView = getView().findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        mSwipeLayout = getView().findViewById(R.id.swipe_container);
+        mSwipeLayout = getView().findViewById(R.id.container);
         mSwipeLayout.setOnRefreshListener(this);
         //加载颜色是循环播放的，只要没有完成刷新就会一直循环，color1>color2>color3>color4
         mSwipeLayout.setColorSchemeResources(
@@ -65,41 +61,13 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
-        getData();
+        renewUI();
+    }
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-
-                AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Delete",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                LinkedHashMap<String, String> selectedFromList = (LinkedHashMap<String, String>) listView.getItemAtPosition(position);
-                                Map.Entry<String, String> entry = selectedFromList.entrySet().iterator().next();
-                                String value = entry.getValue();
-
-                                Log.d("item", String.valueOf(selectedFromList));
-                                Log.d("name", String.valueOf(value));
-                                deleteData(value);
-                            }
-                        });
-
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Maps",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                LinkedHashMap<String, String> selectedFromList = (LinkedHashMap<String, String>) listView.getItemAtPosition(position);
-                                Map.Entry<String, String> entry = selectedFromList.entrySet().iterator().next();
-                                String value = entry.getValue();
-
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format("geo:0,0?q=%s", URLEncoder.encode(value))));
-                                startActivity(intent);
-                            }
-                        });
-                alertDialog.show();
-            }
-        });
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_favourite, container, false);
     }
 
     @Override
@@ -123,109 +91,32 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
 
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    searchData(query);
+                    dataBaseProgress.searchData(mContRes,listStr,query);
+                    renewUI();
                     return true;
                 }
             };
 
-
-    private void searchData(String word) {
+    public void renewUI(){
         listStr.clear();
-
-        LinkedHashMap<String, String> item = new LinkedHashMap<>();
-        Cursor c = null;
-        String[] projection = new String[]{"name", "rating", "distance", "address"};
-
-        if (!word.equals("")) {
-            c = mContRes.query(FavouriteContentProvider.CONTENT_URI, projection
-                    , "name=" + "\"" + word
-                            + "\"", null, null);
-        }
-        if (c == null)
-            return;
-
-        if (c.getCount() == 0) {
-            Toast.makeText(getActivity(), "沒有這筆資料", Toast.LENGTH_LONG)
-                    .show();
-        } else {
-            c.moveToFirst();
-            item.put("name", c.getString(0));
-            item.put("data", "\t" + c.getString(1) + "\n" + c.getString(2)+ "\n" + c.getString(3));
-            listStr.add(item);
-            while (c.moveToNext()) {
-                LinkedHashMap<String, String> itemNew = new LinkedHashMap<>();
-                itemNew.put("name", c.getString(0));
-                itemNew.put("data", "\t" + c.getString(1) + "\n" + c.getString(2)+ "\n" + c.getString(3));
-                listStr.add(item);
-            }
-        }
-        ListAdapter listAdapter = new SimpleAdapter(getActivity(), listStr, R.layout.list_item,
-                new String[]{"name", "data"},
-                new int[]{R.id.txtName, R.id.txtData});
-        listView.setAdapter(listAdapter);
-    }
-
-    private void deleteData(String value) {
-        long test = mContRes.delete(FavouriteContentProvider.CONTENT_URI, "name=" + "\"" + value
-                + "\"", null);
-        if (test > 0) {
-            Toast.makeText(getActivity(), "刪除成功", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getActivity(), "刪除失敗", Toast.LENGTH_SHORT).show();
-        }
-        getData();
-    }
-
-    public void getData() {
-        listStr.clear();
-        LinkedHashMap<String, String> item = new LinkedHashMap<>();
-
-        String[] projection = new String[]{"name", "rating", "distance", "address"};
-
-        Cursor c = mContRes.query(FavouriteContentProvider.CONTENT_URI, projection,
-                null, null, null);
-
-
-        if (c == null)
-            return;
-
-        if (c.getCount() == 0) {
-            Toast.makeText(getActivity(), "沒有資料", Toast.LENGTH_LONG)
-                    .show();
-        } else {
-            c.moveToFirst();
-            item.put("name", c.getString(0));
-            item.put("data", "\t" + c.getString(1) + "\n" + c.getString(2)+ "\n" + c.getString(3));
-            listStr.add(item);
-
-            while (c.moveToNext()) {
-                LinkedHashMap<String, String> itemNew = new LinkedHashMap<>();
-                itemNew.put("name", c.getString(0));
-                itemNew.put("data", "\t" + c.getString(1) + "\n" + c.getString(2)+ "\n" + c.getString(3));
-                listStr.add(itemNew);
-            }
-        }
+        listStr = dataBaseProgress.getData(mContRes,listStr);
 
         Log.d("datalist", String.valueOf(listStr));
-        ListAdapter listAdapter = new SimpleAdapter(getActivity(), listStr, R.layout.list_item,
-                new String[]{"name", "data"},
-                new int[]{R.id.txtName, R.id.txtData});
-        listView.setAdapter(listAdapter);
+        if (listStr == null){
+            Toast.makeText(getContext(), "沒有資料", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            favouriteItemAdapter = new FavouriteItemAdapter(getContext(), listStr);
+            recyclerView.setAdapter(favouriteItemAdapter);
+        }
     }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_favourite, container, false);
-    }
-
 
     @Override
     public void onRefresh() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                getData();
+                renewUI();
                 // 停止刷新
                 mSwipeLayout.setRefreshing(false);
             }

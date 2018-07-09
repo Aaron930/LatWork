@@ -57,11 +57,11 @@ public class TapFoodFragment extends Fragment implements
     public static TextView txtDistance;
     public Button btnMap,btnAdd;
     public ImageButton btnTap;
-    private static List<PlacePhotoMetadata> photosDataList;
-    private static int currentPhotoIndex = 0;
     public  GeoDataClient geoDataClient;
 
     private static ContentResolver mContRes;
+
+    DataBaseProgress dataBaseProgress = new DataBaseProgress();
 
     public TapFoodFragment() {
     }
@@ -105,9 +105,6 @@ public class TapFoodFragment extends Fragment implements
         return inflater.inflate(R.layout.tap_food_main, container, false);
     }
 
-
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -142,7 +139,26 @@ public class TapFoodFragment extends Fragment implements
     public View.OnClickListener btnAddOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-                addData();
+            DataModel dataModel = new DataModel();
+
+            if (!txtPlaceName.getText().toString().equals("")) {
+//                dataModel.setName(txtPlaceName.getText().toString());
+//                dataModel.setDistance(txtDistance.getText().toString());
+//                dataModel.setAddress(txtAddress.getText().toString());
+//                dataModel.setRating(txtRating.getText().toString());
+
+                String placeName = txtPlaceName.getText().toString();
+                String distance =txtDistance.getText().toString();
+                String address =txtAddress.getText().toString();
+                String rating = txtRating.getText().toString();
+
+                dataBaseProgress.addData(mContRes,placeName,distance,address,rating);
+
+                Toast.makeText(getActivity(), "Success", Toast.LENGTH_LONG).show();
+
+            } else {
+                Toast.makeText(getActivity(), "Failed", Toast.LENGTH_LONG).show();
+            }
         }
     };
 
@@ -168,24 +184,6 @@ public class TapFoodFragment extends Fragment implements
             Toast.makeText(getActivity(), "Showing Nearby Restaurants", Toast.LENGTH_SHORT).show();
         }
     };
-
-    public void addData() {
-        if (!txtPlaceName.getText().toString().equals("")) {
-            ContentValues newRow = new ContentValues();
-            newRow.put("name", txtPlaceName.getText().toString());
-            newRow.put("rating", txtRating.getText().toString());
-            newRow.put("distance", txtDistance.getText().toString());
-            newRow.put("address", txtAddress.getText().toString());
-
-            mContRes.insert(FavouriteContentProvider.CONTENT_URI, newRow);
-            Toast.makeText(getActivity(), "Success", Toast.LENGTH_LONG).show();
-
-        } else {
-            Toast.makeText(getActivity(), "Failed", Toast.LENGTH_LONG).show();
-        }
-    }
-
-
 
     public boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

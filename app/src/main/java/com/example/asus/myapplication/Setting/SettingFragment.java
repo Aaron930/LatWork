@@ -1,4 +1,4 @@
-package com.example.asus.myapplication;
+package com.example.asus.myapplication.Setting;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.example.asus.myapplication.R;
 
 public class SettingFragment extends PreferenceFragment {
     @Override

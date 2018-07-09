@@ -1,0 +1,10 @@
+diff a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml	(rejected hunks)
+@@ -34,7 +34,7 @@
+         </activity>
+ 
+         <activity
+-            android:name=".SettingActivity"
++            android:name=".Setting.SettingActivity"
+             android:label="@string/title_activity_setting"
+             android:theme="@style/AppTheme.PreferenceScreen">
+         </activity>

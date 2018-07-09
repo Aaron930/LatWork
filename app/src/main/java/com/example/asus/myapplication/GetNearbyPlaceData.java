@@ -4,6 +4,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
+import com.example.asus.myapplication.GooglePlaceApi.DataParser;
+import com.example.asus.myapplication.GooglePlaceApi.DownloadURL;
+import com.example.asus.myapplication.TapFoodFragment;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;

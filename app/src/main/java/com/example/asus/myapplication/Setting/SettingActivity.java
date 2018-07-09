@@ -1,10 +1,12 @@
-package com.example.asus.myapplication;
+package com.example.asus.myapplication.Setting;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.example.asus.myapplication.R;
 
 public class SettingActivity extends Activity {
     @Override

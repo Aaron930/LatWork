@@ -1,4 +1,4 @@
-package com.example.asus.myapplication;
+package com.example.asus.myapplication.FirebaseMessageService;
 
 import android.util.Log;
 

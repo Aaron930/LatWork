@@ -34,7 +34,7 @@
         </activity>
 
         <activity
-            android:name=".SettingActivity"
+            android:name=".Setting.SettingActivity"
             android:label="@string/title_activity_setting"
             android:theme="@style/AppTheme.PreferenceScreen">
         </activity>
@@ -90,14 +90,14 @@
             android:value="@string/google_maps_key" />
 
         <service
-            android:name=".MyFirebaseInstanceIdService">
+            android:name=".FirebaseMessageService.MyFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
 
         <service
-            android:name=".MyFirebaseMessagingService">
+            android:name=".FirebaseMessageService.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
