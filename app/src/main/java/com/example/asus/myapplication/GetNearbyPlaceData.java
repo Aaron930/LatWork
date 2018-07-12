@@ -1,5 +1,7 @@
 package com.example.asus.myapplication;
 
+import android.app.Fragment;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
@@ -13,7 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
+public class GetNearbyPlaceData extends AsyncTask<Object,String,String>{
+
     private String googlePlacesData,
             allData,
             url,
@@ -21,8 +24,12 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
             newPage2,
             newpageURL;
 
+    public String placeName ;
+    public String vicinity ;
+    public String rating ;
+    public int distance;
 
-
+    public AsyncTaskResult<String> connectionTestResult;
 
     @Override
     protected String doInBackground(Object[] objects) {
@@ -64,46 +71,52 @@ public class GetNearbyPlaceData extends AsyncTask<Object,String,String> {
     }
 
     public void randomPlaceData(List<HashMap<String, String>> nearbyPlaceList){
+        DataModel dataModel = new DataModel();
         int random = new Random().nextInt(nearbyPlaceList.size());
 
         HashMap<String, String> googlePlace = nearbyPlaceList.get(random);
-        String placeName = googlePlace.get("place_name");
-        String vicinity = googlePlace.get("vicinity");
-        String rating = googlePlace.get("rating");
 
         double lat = Double.parseDouble(googlePlace.get("lat"));
         double lng = Double.parseDouble(googlePlace.get("lng"));
 
-        double myLat = TapFoodFragment.latitude;
-        double myLng = TapFoodFragment.longitude;
+        double myLat = dataModel.getLatitude();
+        double myLng = dataModel.getLongitude();
 
+         placeName = googlePlace.get("place_name");
+       vicinity = googlePlace.get("vicinity");
+         rating = googlePlace.get("rating");
+        distance=getDistance(lat,lng,myLat,myLng);
 
         Log.i("PlaceName",placeName);
         Log.i("Vicinity",vicinity);
         Log.i("Lat",Double.toString(lat));
         Log.i("Lng",Double.toString(lng));
         Log.i("rating",rating);
-
-
-        int distance= TapFoodFragment.getDistance(lat,lng,myLat,myLng);
-        Log.i("distance",Double.toString(distance));
-
-        TapFoodFragment.linearLayout.setVisibility(View.VISIBLE);
-        TapFoodFragment.txtPlaceName.setText(placeName);
-        TapFoodFragment.txtAddress.setText(vicinity);
-        TapFoodFragment.txtRating.setText(rating);
-        TapFoodFragment.txtDistance.setText(Integer.toString(distance));
-
+        Log.i("distance",String.valueOf(distance));
     }
 
+    public static int getDistance(double latFromJson,double lngFromJson,double myLat,double myLng){
+        Location myLocation = new Location("my loc");
+
+        myLocation.setLatitude(myLat);
+        myLocation.setLongitude(myLng);
+        Location locFromJson = new Location("loc from json");
+
+        locFromJson.setLatitude(latFromJson);
+        locFromJson.setLongitude(lngFromJson);
+
+        double distance = myLocation.distanceTo(locFromJson);
+        int intDistance=(int)distance;
+        return intDistance;
+    }
 
     @Override
     protected void onPostExecute(String s) {
         List<HashMap<String, String>> nearbyPlaceList;
         DataParser parser = new DataParser();
-        //  nearbyPlaceList = parser.getPlaces()
+
         nearbyPlaceList = parser.parse(s);
         randomPlaceData(nearbyPlaceList);
+        this.connectionTestResult.taskFinish(placeName,vicinity,rating,distance);
     }
-
 }

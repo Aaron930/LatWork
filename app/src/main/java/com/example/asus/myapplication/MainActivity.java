@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    public ViewPager mViewPager;
     private BottomNavigationView bottomNavigationView;
     private MenuItem menuItem;
     private FirebaseAuth mAuth;

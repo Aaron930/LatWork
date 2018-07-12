@@ -2,7 +2,6 @@ package com.example.asus.myapplication;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -30,15 +29,15 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
-import com.google.android.gms.location.places.PlacePhotoMetadata;
 import com.google.android.gms.location.places.Places;
 
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
-
-import com.example.asus.myapplication.providers.FavouriteContentProvider;
+import java.util.Random;
 
 public class TapFoodFragment extends Fragment implements
+        AsyncTaskResult<String>,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
@@ -49,12 +48,12 @@ public class TapFoodFragment extends Fragment implements
     int PROXIMITY_RADIUS = 500;
     static double latitude, longitude;
     private Location mCurrentLocation;
-    public static LinearLayout linearLayout;
 
-    public static TextView txtPlaceName;
-    public static TextView txtAddress;
-    public static TextView txtRating;
-    public static TextView txtDistance;
+    public LinearLayout linearLayout;
+    public  TextView txtPlaceName;
+    public  TextView txtAddress;
+    public  TextView txtRating;
+    public  TextView txtDistance;
     public Button btnMap,btnAdd;
     public ImageButton btnTap;
     public  GeoDataClient geoDataClient;
@@ -72,11 +71,11 @@ public class TapFoodFragment extends Fragment implements
 
         mContRes = getActivity().getContentResolver();
 
-        linearLayout =getView().findViewById(R.id.layout2);
-        txtPlaceName =getView().findViewById(R.id.PlaceNameTV);
-        txtAddress = getView().findViewById(R.id.AddressTV);
-        txtRating = getView().findViewById(R.id.RatingTV);
-        txtDistance =getView().findViewById(R.id.DistanceTV);
+        linearLayout =getActivity().findViewById(R.id.tap_food_second);
+        txtPlaceName =getActivity().findViewById(R.id.PlaceNameTV);
+        txtAddress = getActivity().findViewById(R.id.AddressTV);
+        txtRating = getActivity().findViewById(R.id.RatingTV);
+        txtDistance =getActivity().findViewById(R.id.DistanceTV);
 
         btnAdd=getView().findViewById(R.id.AddFavourite);
         btnTap=getView().findViewById(R.id.taptap);
@@ -95,8 +94,8 @@ public class TapFoodFragment extends Fragment implements
                 .build();
 
         btnAdd.setOnClickListener(btnAddOnClickListener);
-        btnTap.setOnClickListener(btnTapOnClickListener);
         btnMap.setOnClickListener(btnMapOnClickListener);
+        btnTap.setOnClickListener(btnTapOnClickListener);
     }
 
     @Nullable
@@ -125,6 +124,20 @@ public class TapFoodFragment extends Fragment implements
         client.disconnect();
     }
 
+    @Override
+    public void taskFinish(String placeName,String vicinity,String rating,int distance) {
+        if ( placeName.equals("")) {
+            Toast.makeText( getContext(), "Failed", Toast.LENGTH_LONG ).show();
+        }
+        else {
+            linearLayout.setVisibility(View.VISIBLE);
+            txtPlaceName.setText(placeName);
+            txtAddress.setText(vicinity);
+            txtRating.setText(rating);
+            txtDistance.setText(String.valueOf(distance));
+            Toast.makeText(getContext(), "Success", Toast.LENGTH_LONG).show();
+        }
+    }
 
     public View.OnClickListener btnMapOnClickListener = new View.OnClickListener() {
         @Override
@@ -166,20 +179,24 @@ public class TapFoodFragment extends Fragment implements
     public View.OnClickListener btnTapOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            GetNearbyPlaceData getNearbyPlaceData = new GetNearbyPlaceData();
+           getNearbyPlaceData.connectionTestResult=TapFoodFragment.this;
+
             if (mCurrentLocation != null) {
                 Log.i("Location", mCurrentLocation.toString());
             } else {
                 Log.i("Location", "nothing");
             }
             Object dataTransfer[] = new Object[2];
-            GetNearbyPlaceData getNearbyPlaceData = new GetNearbyPlaceData();
+
+
 
             String restaurant = "restaurant";
             String url = getUrl(latitude, longitude, restaurant);
 
             dataTransfer[0] = url;
-            getNearbyPlaceData.execute(dataTransfer);
 
+            getNearbyPlaceData.execute(dataTransfer);
 
             Toast.makeText(getActivity(), "Showing Nearby Restaurants", Toast.LENGTH_SHORT).show();
         }
@@ -201,8 +218,16 @@ public class TapFoodFragment extends Fragment implements
 
     @Override
     public void onLocationChanged(Location location) {
+        DataModel dataModel = new DataModel();
+
         latitude = location.getLatitude();
         longitude = location.getLongitude();
+
+
+
+        dataModel.setLatitude(latitude);
+        dataModel.setLongitude(longitude);
+
         lastlocation = location;
         mCurrentLocation = location;
 
@@ -231,22 +256,6 @@ public class TapFoodFragment extends Fragment implements
         return googlePlaceUrl.toString();
     }
 
-
-    public static int getDistance(double latFromJson,double lngFromJson,double myLat,double myLng){
-        Location myLocation = new Location("my loc");
-
-        myLocation.setLatitude(myLat);
-        myLocation.setLongitude(myLng);
-        Location locFromJson = new Location("loc from json");
-
-        locFromJson.setLatitude(latFromJson);
-        locFromJson.setLongitude(lngFromJson);
-
-        double distance = myLocation.distanceTo(locFromJson);
-        int intDistance=(int)distance;
-        return intDistance;
-    }
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         locationRequest = new LocationRequest();
@@ -269,6 +278,5 @@ public class TapFoodFragment extends Fragment implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-
 }
 
