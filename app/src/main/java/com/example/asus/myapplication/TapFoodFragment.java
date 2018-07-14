@@ -32,9 +32,12 @@ import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Places;
 
 import java.net.URLEncoder;
+<<<<<<< HEAD
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+=======
+>>>>>>> 206315d9d9b9d88fec18969cac616ab57e9280b5
 
 public class TapFoodFragment extends Fragment implements
         AsyncTaskResult<String>,
@@ -61,6 +64,11 @@ public class TapFoodFragment extends Fragment implements
     private static ContentResolver mContRes;
 
     DataBaseProgress dataBaseProgress = new DataBaseProgress();
+<<<<<<< HEAD
+=======
+    FilterFragment filterFragment =new  FilterFragment();
+    DataModel dataModel =DataModel.getInstance();
+>>>>>>> 206315d9d9b9d88fec18969cac616ab57e9280b5
 
     public TapFoodFragment() {
     }
@@ -152,7 +160,11 @@ public class TapFoodFragment extends Fragment implements
     public View.OnClickListener btnAddOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+<<<<<<< HEAD
             DataModel dataModel = new DataModel();
+=======
+
+>>>>>>> 206315d9d9b9d88fec18969cac616ab57e9280b5
 
             if (!txtPlaceName.getText().toString().equals("")) {
 //                dataModel.setName(txtPlaceName.getText().toString());
@@ -191,11 +203,22 @@ public class TapFoodFragment extends Fragment implements
 
 
 
+<<<<<<< HEAD
             String restaurant = "restaurant";
             String url = getUrl(latitude, longitude, restaurant);
 
             dataTransfer[0] = url;
 
+=======
+            int abd=dataModel.getDistanceValue();
+            Log.d("Distance", String.valueOf(abd));
+            String restaurant = "restaurant";
+            int distance=dataModel.getDistanceValue();
+            String url = getUrl(latitude, longitude, restaurant,distance);
+            int rating=dataModel.getRatingValue();
+            dataTransfer[0] = url;
+            dataTransfer[1]=rating;
+>>>>>>> 206315d9d9b9d88fec18969cac616ab57e9280b5
             getNearbyPlaceData.execute(dataTransfer);
 
             Toast.makeText(getActivity(), "Showing Nearby Restaurants", Toast.LENGTH_SHORT).show();
@@ -218,7 +241,11 @@ public class TapFoodFragment extends Fragment implements
 
     @Override
     public void onLocationChanged(Location location) {
+<<<<<<< HEAD
         DataModel dataModel = new DataModel();
+=======
+
+>>>>>>> 206315d9d9b9d88fec18969cac616ab57e9280b5
 
         latitude = location.getLatitude();
         longitude = location.getLongitude();
@@ -238,11 +265,19 @@ public class TapFoodFragment extends Fragment implements
     }
 
 
+<<<<<<< HEAD
     public String getUrl(double latitude, double longitude, String nearbyPlace) {
 
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googlePlaceUrl.append("location=" + latitude + "," + longitude);
         googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
+=======
+    public String getUrl(double latitude, double longitude, String nearbyPlace,int distance) {
+
+        StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googlePlaceUrl.append("location=" + latitude + "," + longitude);
+        googlePlaceUrl.append("&radius=" + distance);
+>>>>>>> 206315d9d9b9d88fec18969cac616ab57e9280b5
         googlePlaceUrl.append("&type=" + nearbyPlace);
         googlePlaceUrl.append("&type=" + "cafe");
         googlePlaceUrl.append("&opennow="+"true");
