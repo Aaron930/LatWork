@@ -27,7 +27,6 @@ public class FavouriteItemAdapter extends  RecyclerView.Adapter<FavouriteItemAda
     private ArrayList<LinkedHashMap<String, String>> mListString;
     private static ContentResolver mContRes;
     private Context context;
-    FavouriteFragment favouriteFragment = new FavouriteFragment();
 
     // ViewHolder 是把項目中所有的 View 物件包起來。
     // 它在 onCreateViewHolder() 中使用。

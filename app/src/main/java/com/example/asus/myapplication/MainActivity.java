@@ -317,8 +317,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        public View onCreateView(LayoutInflater inflater, ViewGroup container,
 //                                 Bundle savedInstanceState) {
 //            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-//            TextView textView = rootView.findViewById(R.id.section_label);
-//            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+//            TextView mTxtSeekBar = rootView.findViewById(R.id.section_label);
+//            mTxtSeekBar.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
 //            return rootView;
 //        }
 //    }

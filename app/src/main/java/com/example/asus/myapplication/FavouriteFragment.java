@@ -1,9 +1,6 @@
 package com.example.asus.myapplication;
 
-import android.content.ContentProvider;
 import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -21,8 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.Toast;
-
-import com.example.asus.myapplication.providers.FavouriteContentProvider;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -60,8 +55,6 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-
-        renewUI();
     }
 
     @Nullable
@@ -72,7 +65,6 @@ public class FavouriteFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Log.d("Tag", "onCreateOptionsMenu()");
         menu.clear();
         inflater.inflate(R.menu.menu_main, menu);
 
